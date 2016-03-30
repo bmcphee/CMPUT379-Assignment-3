@@ -78,7 +78,7 @@ int displayFileInfo(char *filename){
 	int errorCheck = 0
 	
 	// Print the file permissions and the number of hard links
-	errorCheck &= displayFilePerm(filename);
+	displayFilePerm(info.st_mode);
 	stat(filename, &info);
 	printf("%d ", info.st_nlink);
 	
@@ -96,7 +96,7 @@ int displayFileInfo(char *filename){
 	strftime(timeBuffer, 20, "%b %d %H:%M", timeFormat);
 	printf("%s ", timeBuffer);
 	
-	// Check if the file is a symbolic link deal with accordingly
+	// If the file is a link use the displayLink function otherwise print the filename
 	if(S_ISLINK(info.st_mode){
 		errorCheck &= displayLink(filename, info.st_size);
 	}
@@ -115,9 +115,20 @@ int displayFileInfo(char *filename){
  * 
  * @return Returns 0 if successful and 1 otherwise
  * 
+ * @ref  Exact code from the Lab 3 powerpoint
+ * 
  */
- int displayFilePerm(char *filename){
-	 
+ void displayFilePerm(mode_t mode){
+	printf((S_ISDIR(mode) ? "d" : "-");
+	printf((mode & S_IRUSR) ? "r" : "-");
+	printf((mode & S_IWUSR) ? "w" : "-");
+	printf((mode & S_IXUSR) ? "x" : "-");
+	printf((mode & S_IRGRP) ? "r" : "-");
+	printf((mode & S_IWGRP) ? "w" : "-");
+	printf((mode & S_IXGRP) ? "x" : "-");
+	printf((mode & S_IROTH) ? "r" : "-");
+	printf((mode & S_IWOTH) ? "w" : "-");
+	printf((mode & S_IXOTH) ? "x" : "-");
  }
  
  /**
@@ -131,25 +142,25 @@ int displayFileInfo(char *filename){
   * 
   */
  int displayLink(char *filename, off_t size){
-	 ssize_t link;
-	 char *linkname = malloc[size + 1];
-	 
-	 // If there is insufficent memory return 1
-	 if(linkname == NULL){
-		 return 1;
-	 }
-	 
-	 link = readlink(filename, linkname, size +1);
-	 
-	 // Check if there was an error with readlink
-	 if(link < 0){
-		 return 1;
-	 }
-	 
-	 // Append the link name with a terminator and print
-	 linkname[size] = '\0';
-	 printf("%s -> %s\n", filename, linkname);
-	 free(linkname);
+	ssize_t link;
+	char *linkname = malloc[size + 1];
+	
+	// If there is insufficent memory return 1
+	if(linkname == NULL){
+		return 1;
+	}
+	
+	link = readlink(filename, linkname, size +1);
+	
+	// Check if there was an error with readlink
+	if(link < 0){
+		return 1;
+	}
+	
+	// Append the link name with a terminator and print
+	linkname[size] = '\0';
+	printf("%s -> %s\n", filename, linkname);
+	free(linkname);
 	return 0;
  }
  
