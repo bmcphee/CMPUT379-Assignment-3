@@ -7,14 +7,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <time.h>
-
-int main(int argc, char *argv[]){
-	if(argc != 2){
-		printf("Error: please provide an argument);
-		exit(1);
-	}
-	
-}
+#include <grp.h>
+#include "ralf.h"
 
 /** 
  * @brief Recursively displays info about the directory given
@@ -25,11 +19,11 @@ int main(int argc, char *argv[]){
  * @return Returns 0 if successful and 1 otherwise
  * 
  */
-int displayDir(char *dir({
+int displayDir(char *dir){
 	DIR *pDir;
 	struct dirent *pDirent;
 	struct stat subCheck;
-	int errorCheck = 0
+	int errorCheck = 0;
 	
 	// Try to open the directory, print error if NULL
 	pDir = opendir(dir);
@@ -40,16 +34,16 @@ int displayDir(char *dir({
 	
 	// Read the directory then print the info about it
 	while((pDirent = readdir(pDir)) != NULL){
-		errorCheck &= errorCheckdisplayFileInfo(pDirent.d_name);
+		errorCheck &= displayFileInfo(pDirent->d_name);
 	}
 	
 	// Rewind the directory and search for subfolders
 	// If a subfolder is found recursively run displayDir
 	rewinddir(pDir);
-	while((pDirent = readdir(pDir) != NULL){
-		lstat(pDirent.d_name, &subCheck);
+	while((pDirent = readdir(pDir)) != NULL){
+		lstat(pDirent->d_name, &subCheck);
 		if(S_ISDIR(subCheck.st_mode)){
-			errorCheck &= displayDir(pDirent.d_name);
+			errorCheck &= displayDir(pDirent->d_name);
 		}
 	}
 	
@@ -72,24 +66,24 @@ int displayDir(char *dir({
 int displayFileInfo(char *filename){
 	struct stat info;
 	struct passwd *pw;
-	struct group *group;
+	struct group *g;
 	struct tm *timeFormat;
 	char timeBuffer[20];
-	int errorCheck = 0
+	int errorCheck = 0;
 	
 	// Print the file permissions and the number of hard links
 	displayFilePerm(info.st_mode);
 	stat(filename, &info);
-	printf("%d ", info.st_nlink);
+	printf("%d ", (int) info.st_nlink);
 	
 	// Get the user name and group name and print them
-	getpwuid(info.st_uid, &pw);
-	getgrgid(info.st_gid, &group);
-	printf("%s ", pw.pw_name);
-	printf("%s ", group.gr_name);
+	pw = getpwuid(info.st_uid);
+	g = getgrgid(info.st_gid);
+	printf("%s ", pw->pw_name);
+	printf("%s ", g->gr_name);
 	
 	// Print the size
-	printf("%d ", info.st_size);
+	printf("%d ", (int) info.st_size);
 	
 	// Convert the time modified to the tm struct, then format and print
 	timeFormat = localtime(&(info.st_mtime));
@@ -97,7 +91,7 @@ int displayFileInfo(char *filename){
 	printf("%s ", timeBuffer);
 	
 	// If the file is a link use the displayLink function otherwise print the filename
-	if(S_ISLINK(info.st_mode){
+	if(S_ISLNK(info.st_mode)){
 		errorCheck &= displayLink(filename, info.st_size);
 	}
 	else{
@@ -119,7 +113,8 @@ int displayFileInfo(char *filename){
  * 
  */
  void displayFilePerm(mode_t mode){
-	printf((S_ISDIR(mode) ? "d" : "-");
+	 // Compare mode against the references
+	printf(S_ISDIR(mode) ? "d" : "-");
 	printf((mode & S_IRUSR) ? "r" : "-");
 	printf((mode & S_IWUSR) ? "w" : "-");
 	printf((mode & S_IXUSR) ? "x" : "-");
@@ -143,7 +138,7 @@ int displayFileInfo(char *filename){
   */
  int displayLink(char *filename, off_t size){
 	ssize_t link;
-	char *linkname = malloc[size + 1];
+	char *linkname = malloc(size + 1);
 	
 	// If there is insufficent memory return 1
 	if(linkname == NULL){
@@ -164,3 +159,11 @@ int displayFileInfo(char *filename){
 	return 0;
  }
  
+int main(int argc, char *argv[]){
+	if(argc != 2){
+		printf("Error: please provide an argument");
+		return 1;
+	}
+	int error = displayDir(argv[1]);
+	return displayDir(argv[1]);
+}
