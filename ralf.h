@@ -5,10 +5,12 @@
 #include <errno.h>
 #include <dirent.h>
 #include <sys/types.h>
+#include <string.h>
 #include <sys/stat.h>
 #include <time.h>
 
-int displayDir(char *);
-int dispalyFileInfo(char *);
-void displayFilePerm(mode_t);
-int displayLink(char *, off_t);
+static int displayDir(char *);
+int dispalyFileInfo(struct stat, char *);
+void displayFilePerm(int, char *);
+int displayLink(char *);
+void stripSpaces(char *);
