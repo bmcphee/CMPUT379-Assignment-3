@@ -11,6 +11,18 @@
 #include <grp.h>
 #include "ralf.h"
 
+/* CMPUT 379 Assignment 3
+ * 
+ * Name: Brennen McPhee
+ * ID: 1353798
+ * 
+ * Descriptions: Implements the ls -RalF command in c code
+ * 							requries the input of a folder to list.
+ * 
+ * To do: Recurse through folders
+ *
+ */
+
 /** 
  * @brief Recursively displays info about the directory given
  * 				using the displayFileInfo function
